@@ -7,8 +7,8 @@ import (
 	"log"
 	"os"
 
+	micro "github.com/micro/go-micro"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
-	"google.golang.org/grpc"
 )
 
 const (
@@ -17,14 +17,10 @@ const (
 )
 
 func main() {
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("Did not connect %v", err)
-	}
+	service := micro.NewService(micro.Name("service.consignment.cli"))
+	service.Init()
 
-	defer conn.Close()
-
-	client := pb.NewShippingServiceClient(conn)
+	client := pb.NewShippingServiceClient("service.consignment", service.Client())
 
 	file := defaultFilename
 

@@ -3,12 +3,10 @@ package main
 import (
 	"context"
 	"log"
-	"net"
 	"sync"
 
+	micro "github.com/micro/go-micro"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -59,19 +57,22 @@ func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest) (*pb.
 func main() {
 	repo := &Repository{}
 
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("fail to listen: %v", err)
-	}
+	// lis, err := net.Listen("tcp", port)
+	// if err != nil {
+	// 	log.Fatalf("fail to listen: %v", err)
+	// }
 
-	s := grpc.NewServer()
+	// s := grpc.NewServer()
+	// pb.RegisterShippingServiceServer(s, &service{repo})
+	// reflection.Register(s)
 
-	pb.RegisterShippingServiceServer(s, &service{repo})
-
-	reflection.Register(s)
+	srv := micro.NewService(micro.Name("service.consignment"))
+	srv.Init()
+	// pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
 
 	log.Println("Running on port: ", port)
-	if err := s.Serve(lis); err != nil {
+	if err := srv.Run(); err != nil {
 		log.Fatalf("fail to serve %v", err)
 	}
 
