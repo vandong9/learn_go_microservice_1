@@ -1,4 +1,4 @@
-module github.com/vandong9/learn_go_microservice_1/shippy-cli-consignment
+module github.com/vandong9/learn_go_microservice_1/service-consignment
 
 go 1.15
 

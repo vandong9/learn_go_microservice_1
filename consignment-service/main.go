@@ -4,8 +4,11 @@ import(
 	"sync"
 	"context"
 	"log"
+	"net"
 	"sync"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 )
 
@@ -35,5 +38,31 @@ type service struct {
 }
 
 func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment) (*pb.Response, error) {
+	consignment, err := s.repo.Create(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Response{ Created: true, Consignment: consignment}, nil
+}
+
+func main() {
+	repo := Repository{}
+
+	lis, err := net.Listen("tcp", port)
+	if err != nil {
+		log.Fatalf("fail to listen: %v", err)
+	}
+	
+	s := grpc.NewServer()
+
+	pb.RegisterShippingServiceServer(s, &service{repo})
+
+	refecreflection.Register(s)
+
+	log.Println("Running on port: ", port)
+	if err := s.Serve(lis); err != nil {
+		log.Fatalf("fail to serve %v", err)
+	}
 
 }
