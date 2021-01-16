@@ -1,28 +1,27 @@
-package main 
+package main
 
-import(
-	"sync"
+import (
 	"context"
 	"log"
 	"net"
 	"sync"
 
+	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 )
 
 const (
-	port := ":50051"
+	port = ":50051"
 )
 
 type repository interface {
-	Create(*pb.Consignment) (*pb.Consignment, error)
+	Create(consignment *pb.Consignment) (*pb.Consignment, error)
 }
 
 type Repository struct {
-	mu 				sync.RWMutex
-	consignments 	[]*pb.Consignment
+	mu           sync.RWMutex
+	consignments []*pb.Consignment
 }
 
 func (repo *Repository) Create(consignment *pb.Consignment) (*pb.Consignment, error) {
@@ -43,22 +42,22 @@ func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment) (*
 		return nil, err
 	}
 
-	return &pb.Response{ Created: true, Consignment: consignment}, nil
+	return &pb.Response{Created: true, Consignment: consignment}, nil
 }
 
 func main() {
-	repo := Repository{}
+	repo := &Repository{}
 
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("fail to listen: %v", err)
 	}
-	
+
 	s := grpc.NewServer()
 
 	pb.RegisterShippingServiceServer(s, &service{repo})
 
-	refecreflection.Register(s)
+	reflection.Register(s)
 
 	log.Println("Running on port: ", port)
 	if err := s.Serve(lis); err != nil {
