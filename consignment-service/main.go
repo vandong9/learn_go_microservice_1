@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	micro "github.com/micro/go-micro"
+	micro "github.com/micro/go-micro/v2"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 )
 
@@ -39,19 +39,21 @@ type service struct {
 	repo repository
 }
 
-func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment) (*pb.Response, error) {
+func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
 	consignment, err := s.repo.Create(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &pb.Response{Created: true, Consignment: consignment}, nil
+	res.Created = true
+	res.Consignment = consignment
+	return nil
 }
 
-func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest) (*pb.Response, error) {
+func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest, res *pb.Response) error {
 	consignments := s.repo.GetAll()
-
-	return &pb.Response{Consignments: consignments}, nil
+	res.Consignments = consignments
+	return nil
 }
 
 func main() {
@@ -69,8 +71,8 @@ func main() {
 	srv := micro.NewService(micro.Name("service.consignment"))
 	srv.Init()
 	// pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	// pb.RegisterShippingServiceHandler(srv.r(), &service{repo})
 	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
-
 	log.Println("Running on port: ", port)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("fail to serve %v", err)
