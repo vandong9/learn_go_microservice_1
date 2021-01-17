@@ -5,6 +5,7 @@ import (
 	"log"
 	"sync"
 
+	vesselProto "github.com/EwanValentine/vessel-service/proto/vessel"
 	micro "github.com/micro/go-micro/v2"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 )
@@ -36,10 +37,23 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 }
 
 type service struct {
-	repo repository
+	repo         repository
+	vesselClient vesselProto.VesselServiceClient
 }
 
 func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
+
+	vesselResponse, err := s.vesselClient.FindAvaible(context.Background(), &vesselProto.Specification{
+		MaxWeight: req.Weight,
+		Capacity:  int32(len(req.Containers)),
+	})
+	log.Printf("Found vessel: %s \n", vesselResponse.Vessel.Name)
+
+	if err != nil {
+		return err
+	}
+	req.VesselId = vesselResponse.Vessel.id
+
 	consignment, err := s.repo.Create(req)
 	if err != nil {
 		return err
@@ -59,20 +73,14 @@ func (s *service) GetConsignments(ctx context.Context, req *pb.GetRequest, res *
 func main() {
 	repo := &Repository{}
 
-	// lis, err := net.Listen("tcp", port)
-	// if err != nil {
-	// 	log.Fatalf("fail to listen: %v", err)
-	// }
-
-	// s := grpc.NewServer()
-	// pb.RegisterShippingServiceServer(s, &service{repo})
-	// reflection.Register(s)
-
 	srv := micro.NewService(micro.Name("service.consignment"))
 	srv.Init()
+
+	vesselClient := vesselProto.NewVesselServiceClient("vessel.service", srv.Client())
+
 	// pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
 	// pb.RegisterShippingServiceHandler(srv.r(), &service{repo})
-	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo, vesselClient})
 	log.Println("Running on port: ", port)
 	if err := srv.Run(); err != nil {
 		log.Fatalf("fail to serve %v", err)
