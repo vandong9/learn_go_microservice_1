@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	micro "github.com/micro/go-micro"
+	micro "github.com/micro/go-micro/v2"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
 )
 
@@ -20,7 +20,7 @@ func main() {
 	service := micro.NewService(micro.Name("service.consignment.cli"))
 	service.Init()
 
-	client := pb.NewShippingServiceClient("service.consignment", service.Client())
+	client := pb.NewShippingService("service.consignment", service.Client())
 
 	file := defaultFilename
 
