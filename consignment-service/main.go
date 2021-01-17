@@ -5,9 +5,9 @@ import (
 	"log"
 	"sync"
 
-	vesselProto "github.com/EwanValentine/vessel-service/proto/vessel"
 	micro "github.com/micro/go-micro/v2"
 	pb "github.com/vandong9/learn_go_microservice_1/consignment-service/proto/consignment"
+	vesselProto "github.com/vandong9/learn_go_microservice_1/vessel-service/proto/vessel"
 )
 
 const (
@@ -38,7 +38,7 @@ func (repo *Repository) GetAll() []*pb.Consignment {
 
 type service struct {
 	repo         repository
-	vesselClient vesselProto.VesselServiceClient
+	vesselClient vesselProto.VesselService
 }
 
 func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
@@ -52,7 +52,7 @@ func (s *service) CreateConsignment(ctx context.Context, req *pb.Consignment, re
 	if err != nil {
 		return err
 	}
-	req.VesselId = vesselResponse.Vessel.id
+	req.VesselId = vesselResponse.Vessel.Id
 
 	consignment, err := s.repo.Create(req)
 	if err != nil {
@@ -76,7 +76,7 @@ func main() {
 	srv := micro.NewService(micro.Name("service.consignment"))
 	srv.Init()
 
-	vesselClient := vesselProto.NewVesselServiceClient("vessel.service", srv.Client())
+	vesselClient := vesselProto.NewVesselService("vessel.service", srv.Client())
 
 	// pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
 	// pb.RegisterShippingServiceHandler(srv.r(), &service{repo})
