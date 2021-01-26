@@ -42,7 +42,8 @@ func NewVesselServiceEndpoints() []*api.Endpoint {
 // Client API for VesselService service
 
 type VesselService interface {
-	FindAvaible(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error)
+	FindAvailable(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error)
+	Create(ctx context.Context, in *Vessel, opts ...client.CallOption) (*Response, error)
 }
 
 type vesselService struct {
@@ -57,8 +58,18 @@ func NewVesselService(name string, c client.Client) VesselService {
 	}
 }
 
-func (c *vesselService) FindAvaible(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.name, "VesselService.FindAvaible", in)
+func (c *vesselService) FindAvailable(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "VesselService.FindAvailable", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *vesselService) Create(ctx context.Context, in *Vessel, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "VesselService.Create", in)
 	out := new(Response)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -70,12 +81,14 @@ func (c *vesselService) FindAvaible(ctx context.Context, in *Specification, opts
 // Server API for VesselService service
 
 type VesselServiceHandler interface {
-	FindAvaible(context.Context, *Specification, *Response) error
+	FindAvailable(context.Context, *Specification, *Response) error
+	Create(context.Context, *Vessel, *Response) error
 }
 
 func RegisterVesselServiceHandler(s server.Server, hdlr VesselServiceHandler, opts ...server.HandlerOption) error {
 	type vesselService interface {
-		FindAvaible(ctx context.Context, in *Specification, out *Response) error
+		FindAvailable(ctx context.Context, in *Specification, out *Response) error
+		Create(ctx context.Context, in *Vessel, out *Response) error
 	}
 	type VesselService struct {
 		vesselService
@@ -88,6 +101,10 @@ type vesselServiceHandler struct {
 	VesselServiceHandler
 }
 
-func (h *vesselServiceHandler) FindAvaible(ctx context.Context, in *Specification, out *Response) error {
-	return h.VesselServiceHandler.FindAvaible(ctx, in, out)
+func (h *vesselServiceHandler) FindAvailable(ctx context.Context, in *Specification, out *Response) error {
+	return h.VesselServiceHandler.FindAvailable(ctx, in, out)
+}
+
+func (h *vesselServiceHandler) Create(ctx context.Context, in *Vessel, out *Response) error {
+	return h.VesselServiceHandler.Create(ctx, in, out)
 }

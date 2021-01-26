@@ -1,55 +1,50 @@
 package main
 
 import (
-	"context"
-	"errors"
 	"fmt"
+	"log"
+	"os"
 
+	micro "github.com/micro/go-micro/v2"
 	pb "github.com/vandong9/learn_go_microservice_1/vessel-service/proto/vessel"
 )
 
-type repository interface {
-	FindAvailable(*pb.Specification) (*pb.Vessel, error)
-}
-
-type VesselRepository struct {
-	vessels []*pb.Vessel
-}
-
-func (repo *VesselRepository) FindAvailable(spec *pb.Specification) (*pb.Vessel, error) {
-	for _, vessel := range repo.vessels {
-		if spec.Capacity <= vessel.Capacity && spec.MaxWeight <= vessel.MaxWeight {
-			return vessel, nil
-		}
-	}
-	return nil, errors.New()
-}
-
 /////
-type service struct {
-	repo repository
-}
+const (
+	defaultHost = "datastore:27017"
+)
 
-func (s *service) FindAvailable(ctx context.Context, req *pb.Specification, res *pb.Response) error {
-	vessel, err := s.repo.FindAvailable(req)
-	if err != nil {
-		return err
-	}
-
-	res.vessel = vessel
-	return nil
-}
+// func createDummyData(repo MongoRepository) {
+// 	defer repo.Close()
+// 	vessels := []*pb.Vessel{
+// 		{Id: "vessel001", Name: "Kane's Salty Secret", MaxWeight: 200000, Capacity: 500},
+// 	}
+// 	for _, v := range vessels {
+// 		repo.Create(v)
+// 	}
+// }
 
 func main() {
-	vessels = []*pb.Vessel{
-		&pb.Vessel{Id: "vessel001", Name: "Boaty McBoatface", MaxWeight: 200000, Capacity: 500},
+	// vessels = []*pb.Vessel{
+	// 	&pb.Vessel{Id: "vessel001", Name: "Boaty McBoatface", MaxWeight: 200000, Capacity: 500},
+	// }
+
+	uri := os.Getenv("DB_HOST")
+	if uri == "" {
+		uri = defaultHost
+	}
+	client, err := CreateClient(uri)
+	if err != nil {
+		log.Panic("")
 	}
 
-	repo := &VesselRepository{vessels}
-	srv := micro.NewService("Vessel.Service")
+	vesselCollection := client.Database("shippy").Collection("vessels")
+	repo := &MongoRepository{vesselCollection}
+	srv := micro.NewService(micro.Name("Vessel.Service"))
 	srv.Init()
+	// h := &handler{repo}
 
-	pb.RegisterShippingServiceHandler(srv.Server(), &service{repo})
+	pb.RegisterVesselServiceHandler(srv.Server(), &handler{repo})
 
 	if err := srv.Run(); err != nil {
 		fmt.Println(err)
