@@ -17,8 +17,17 @@ services:
       - 50052:50051
     environment: 
       MICRO_ADDRESS: ":50051"
-
+  user-service:
+    build: ./user-service
+    ports:
+      - 50053:50051
+    environment: 
+      MICRO_ADDRESS: ":50051"
   datastore:
-      image: mongo
-      ports:
-        - 27017:27017
+    image: mongo
+    ports:
+      - 27017:27017
+  database:
+    image: postgres
+    ports:
+      - 5432:5432
