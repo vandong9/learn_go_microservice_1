@@ -1,15 +1,15 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
-	pb "github.com/EwanValentine/shippy/user-service/proto/user"
-	"github.com/micro/cli"
-	"github.com/micro/go-micro"
-	microclient "github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/cmd"
-	"golang.org/x/net/context"
+	"github.com/micro/cli/v2"
+	"github.com/micro/go-micro/config/cmd"
+	micro "github.com/micro/go-micro/v2"
+	"github.com/micro/go-micro/v2/client"
+	pb "github.com/vandong9/learn_go_microservice_1/user-service/proto/user"
 )
 
 func main() {
@@ -17,32 +17,32 @@ func main() {
 	cmd.Init()
 
 	// Create new greeter client
-	client := pb.NewUserServiceClient("go.micro.srv.user", microclient.DefaultClient)
+	// client := pb.NewUserServiceClient("go.micro.srv.user", microclient.DefaultClient)
+	client := pb.NewUserService("go.micro.srv.user", client.NewClient())
 
-	service := micro.NewService(
-		micro.Flags(
-			cli.StringFlag{
-				Name:  "name",
-				Usage: "You full name",
-			},
-			cli.StringFlag{
-				Name:  "email",
-				Usage: "Your email",
-			},
-			cli.StringFlag{
-				Name:  "password",
-				Usage: "Your password",
-			},
-			cli.StringFlag{
-				Name:  "company",
-				Usage: "Your company",
-			},
-		),
-	)
+	// flags := micro.Flags(
+	// 	cli.StringFlag{
+	// 		Name:  "name",
+	// 		Usage: "You full name",
+	// 	},
+	// 	cli.StringFlag{
+	// 		Name:  "email",
+	// 		Usage: "Your email",
+	// 	},
+	// 	cli.StringFlag{
+	// 		Name:  "password",
+	// 		Usage: "Your password",
+	// 	},
+	// 	cli.StringFlag{
+	// 		Name:  "company",
+	// 		Usage: "Your company",
+	// 	},
+	// )
+	service := micro.NewService(micro.Name("user-cli"))
 
 	service.Init(
 
-		micro.Action(func(c *cli.Context) {
+		micro.Action(func(c *cli.Context) error {
 
 			name := c.String("name")
 			email := c.String("email")
@@ -70,6 +70,7 @@ func main() {
 
 			// let's just exit because
 			os.Exit(0)
+			return err
 		}),
 	)
 

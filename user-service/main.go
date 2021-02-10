@@ -16,7 +16,7 @@ func main() {
 	cmd.Init()
 
 	// Create new greeter client
-	client := pb.NewUserService("go.micro.srv.user", client.NewClient())
+	mclient := pb.NewUserService("go.micro.srv.user", client.NewClient())
 
 	// flags := []cli.Flag{
 	// 	cli.StringFlag{
@@ -29,7 +29,7 @@ func main() {
 	// 	cli.StringFlag{Name: "email", Usage: "your email"},
 	// 	cli.StringFlag{Name: "password", Usage: "your password"},
 	// 	cli.StringFlag{Name: "company", Usage: "your company"}}
-	service := micro.NewService(micro.Name("helloworld"))
+	service := micro.NewService(micro.Name("user-service"))
 
 	// Start as service
 	service.Init(micro.Action(func(c *cli.Context) error {
@@ -38,14 +38,14 @@ func main() {
 		password := c.String("password")
 		company := c.String("company")
 
-		r, err := client.Create(context.TODO(), &pb.User{Name: name, Email: email, Password: password, Company: company})
+		r, err := mclient.Create(context.TODO(), &pb.User{Name: name, Email: email, Password: password, Company: company})
 		if err != nil {
 			log.Fatalf("Could not create: %v", err)
 			return err
 		}
 		log.Printf("Created %s", r.User.Id)
 
-		getAll, err := client.GetAll(context.Background(), &pb.Request{})
+		getAll, err := mclient.GetAll(context.Background(), &pb.Request{})
 		if err != nil {
 			log.Fatalf("Could not list users: %v", err)
 			return err

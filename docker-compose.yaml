@@ -1,10 +1,10 @@
 version: '3.1'
 
 services:
-  consignment-cli:
-    build: ./consignment-cli
-    environment:
-      MICRO_REGISTRY: "mdns"
+  # consignment-cli:
+  #   build: ./consignment-cli
+  #   environment:
+  #     MICRO_REGISTRY: "mdns"
 
   consignment-service:
     build: ./consignment-service
@@ -38,10 +38,10 @@ services:
     depends_on:
       - database
 
-  user-cli:
-    build: ./user-cli
-    environment:
-      MICRO_REGISTRY: "mdns"
+  # user-cli:
+  #   build: ./user-cli
+  #   environment:
+  #     MICRO_REGISTRY: "mdns"
 
   datastore:
     image: mongo
