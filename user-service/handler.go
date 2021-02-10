@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pb "github.com/vandong9/learn_go_microservice_1/user-service/proto/user"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
@@ -29,18 +30,33 @@ func (srv *service) GetAll(ctx context.Context, req *pb.Request, res *pb.Respons
 	return nil
 }
 func (srv *service) Auth(ctx context.Context, req *pb.User, res *pb.Token) error {
-	_, err := srv.repo.GetByEmailAndPassword(req)
+	user, err := srv.repo.GetByEmailAndPassword(req)
 	if err != nil {
 		return err
 	}
-	res.Token = "testingabc"
-	return nil
-}
-func (srv *service) Create(ctx context.Context, user *pb.User, res *pb.Response) error {
-	if err := srv.repo.Create(user); err != nil {
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
 		return err
 	}
-	res.User = user
+
+	token, err := srv.tokenService.Encode(user)
+	if err != nil {
+		return err
+	}
+
+	res.Token = token
+	return nil
+}
+func (srv *service) Create(ctx context.Context, req *pb.User, res *pb.Response) error {
+	hashPas, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	if err := srv.repo.Create(req); err != nil {
+		return err
+	}
+	req.Password = string(hashPas)
+	res.User = req
 	return nil
 }
 func (srv *service) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
