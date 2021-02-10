@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/micro/cli/v2"
 	"github.com/micro/go-micro/config/cmd"
@@ -57,19 +56,20 @@ func main() {
 			})
 			if err != nil {
 				log.Fatalf("Could not create: %v", err)
+				return err
 			}
 			log.Printf("Created: %t", r.User.Id)
 
 			getAll, err := client.GetAll(context.Background(), &pb.Request{})
 			if err != nil {
 				log.Fatalf("Could not list users: %v", err)
+				return err
 			}
 			for _, v := range getAll.Users {
 				log.Println(v)
 			}
 
 			// let's just exit because
-			os.Exit(0)
 			return err
 		}),
 	)

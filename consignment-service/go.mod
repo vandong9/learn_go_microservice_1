@@ -12,9 +12,10 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-micro/cmd/protoc-gen-micro/v2 v2.0.0-20210105173217-bf4ab679e18b // indirect
-	github.com/micro/go-micro/v2 v2.8.1-0.20200603084508-7b379bf1f16e
+	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/micro/v2 v2.8.1-0.20200603100651-e57d42a20d26
 	github.com/pkg/errors v0.9.1
+	github.com/vandong9/learn_go_microservice_1/user-service v0.0.0-20210210153139-21ed1cb42b75
 	github.com/vandong9/learn_go_microservice_1/vessel-service v0.0.0-20210117114640-f690e3ee0da4
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect
