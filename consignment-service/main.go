@@ -18,7 +18,7 @@ import (
 
 const (
 	port        = ":50051"
-	defaultHost = "datastore:27017"
+	defaultHost = "localhost:27017"
 )
 
 func main() {

@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/config/cmd"
 	micro "github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config/cmd"
 	pb "github.com/vandong9/learn_go_microservice_1/user-service/proto/user"
 )
 
@@ -16,7 +15,7 @@ func main() {
 	cmd.Init()
 
 	// Create new greeter client
-	mclient := pb.NewUserService("go.micro.srv.user", client.NewClient())
+	mclient := pb.NewUserService("go.micro.srv.user", client.DefaultClient)
 
 	// flags := []cli.Flag{
 	// 	cli.StringFlag{
@@ -54,7 +53,7 @@ func main() {
 		for _, v := range getAll.Users {
 			log.Println(v)
 		}
-		os.Exit(0)
+		// os.Exit(0)
 		return nil
 	}))
 }

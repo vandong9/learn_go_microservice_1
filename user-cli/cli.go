@@ -17,7 +17,7 @@ func main() {
 
 	// Create new greeter client
 	// client := pb.NewUserServiceClient("go.micro.srv.user", microclient.DefaultClient)
-	client := pb.NewUserService("go.micro.srv.user", client.NewClient())
+	client := pb.NewUserService("go.micro.srv.user", client.DefaultClient)
 
 	// flags := micro.Flags(
 	// 	cli.StringFlag{
