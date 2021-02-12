@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"github.com/micro/cli/v2"
-	"github.com/micro/go-micro/config/cmd"
 	micro "github.com/micro/go-micro/v2"
 	"github.com/micro/go-micro/v2/client"
+	"github.com/micro/go-micro/v2/config/cmd"
 	pb "github.com/vandong9/learn_go_microservice_1/user-service/proto/user"
 )
 
@@ -17,7 +17,7 @@ func main() {
 
 	// Create new greeter client
 	// client := pb.NewUserServiceClient("go.micro.srv.user", microclient.DefaultClient)
-	client := pb.NewUserService("go.micro.srv.user", client.DefaultClient)
+	client := pb.NewUserService("UserService", client.DefaultClient)
 
 	// flags := micro.Flags(
 	// 	cli.StringFlag{

@@ -39,10 +39,10 @@ services:
     environment:
       MICRO_REGISTRY: "mdns"
 
-  # user-cli:
-  #   build: ./user-cli
-  #   environment:
-  #     MICRO_REGISTRY: "mdns"
+  user-cli:
+    build: ./user-cli
+    environment:
+      MICRO_REGISTRY: "mdns"
 
   datastore:
     image: mongo
@@ -61,4 +61,5 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"

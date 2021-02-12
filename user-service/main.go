@@ -1,59 +1,50 @@
 package main
 
 import (
-	"context"
 	"log"
 
-	"github.com/micro/cli/v2"
 	micro "github.com/micro/go-micro/v2"
-	"github.com/micro/go-micro/v2/client"
-	"github.com/micro/go-micro/v2/config/cmd"
 	pb "github.com/vandong9/learn_go_microservice_1/user-service/proto/user"
 )
 
 func main() {
-	cmd.Init()
+	// Creates a database connection and handles
+	// closing it again before exit.
+	db, err := CreateConnection()
+	defer db.Close()
 
-	// Create new greeter client
-	mclient := pb.NewUserService("go.micro.srv.user", client.DefaultClient)
+	if err != nil {
+		log.Fatalf("Could not connect to DB: %v", err)
+	}
 
-	// flags := []cli.Flag{
-	// 	cli.StringFlag{
-	// 		Name:  "lang, l",
-	// 		Value: "english",
-	// 		Usage: "language for the greeting",
-	// 	},
-	// }
-	// []cli.Flag{cli.StringFlag{Name: "name", Usage: "your full name"},
-	// 	cli.StringFlag{Name: "email", Usage: "your email"},
-	// 	cli.StringFlag{Name: "password", Usage: "your password"},
-	// 	cli.StringFlag{Name: "company", Usage: "your company"}}
-	service := micro.NewService(micro.Name("user-service"))
+	// Automatically migrates the user struct
+	// into database columns/types etc. This will
+	// check for changes and migrate them each time
+	// this service is restarted.
+	db.AutoMigrate(&pb.User{})
 
-	// Start as service
-	service.Init(micro.Action(func(c *cli.Context) error {
-		name := c.String("name")
-		email := c.String("email")
-		password := c.String("password")
-		company := c.String("company")
+	repo := &UserRepository{db}
 
-		r, err := mclient.Create(context.TODO(), &pb.User{Name: name, Email: email, Password: password, Company: company})
-		if err != nil {
-			log.Fatalf("Could not create: %v", err)
-			return err
-		}
-		log.Printf("Created %s", r.User.Id)
+	tokenService := &TokenService{repo}
 
-		getAll, err := mclient.GetAll(context.Background(), &pb.Request{})
-		if err != nil {
-			log.Fatalf("Could not list users: %v", err)
-			return err
-		}
+	// Create a new service. Optionally include some options here.
+	srv := micro.NewService(
 
-		for _, v := range getAll.Users {
-			log.Println(v)
-		}
-		// os.Exit(0)
-		return nil
-	}))
+		// This name must match the package name given in your protobuf definition
+		micro.Name("UserService"),
+	)
+
+	// Init will parse the command line flags.
+	srv.Init()
+
+	// Will comment this out now to save having to run this locally
+	// publisher := micro.NewPublisher("user.created", srv.Client())
+
+	// Register handler
+	pb.RegisterUserServiceHandler(srv.Server(), &service{repo, tokenService})
+
+	// Run the server
+	if err := srv.Run(); err != nil {
+		log.Fatal(err)
+	}
 }
