@@ -15,8 +15,8 @@ require (
 	github.com/micro/go-micro/v2 v2.9.1
 	github.com/micro/micro/v2 v2.8.1-0.20200603100651-e57d42a20d26
 	github.com/pkg/errors v0.9.1
-	github.com/vandong9/learn_go_microservice_1/user-service v0.0.0-20210210153139-21ed1cb42b75
-	github.com/vandong9/learn_go_microservice_1/vessel-service v0.0.0-20210117114640-f690e3ee0da4
+	github.com/vandong9/learn_go_microservice_1/user-service v0.0.0-20210212171507-bca74062245d
+	github.com/vandong9/learn_go_microservice_1/vessel-service v0.0.0-20210212171507-bca74062245d
 	github.com/xdg/scram v0.0.0-20180814205039-7eeb5667e42c // indirect
 	github.com/xdg/stringprep v1.0.0 // indirect
 	go.mongodb.org/mongo-driver v1.2.1
