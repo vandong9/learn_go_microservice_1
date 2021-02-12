@@ -9,6 +9,7 @@ services:
       MICRO_ADDRESS: ":50051"
       DB_HOST: "mongodb://datastore:27017"
       MICRO_REGISTRY: "mdns"
+      DISABLE_AUTH: "true"
 
   vessel-service:
     build: ./vessel-service

@@ -16,15 +16,17 @@ type handler struct {
 
 func (s *handler) CreateConsignment(ctx context.Context, req *pb.Consignment, res *pb.Response) error {
 
-	vesselResponse, err := s.vesselClient.FindAvaible(context.Background(), &vesselProto.Specification{
+	vesselResponse, err := s.vesselClient.FindAvailable(context.Background(), &vesselProto.Specification{
 		MaxWeight: req.Weight,
 		Capacity:  int32(len(req.Containers)),
 	})
-	log.Printf("Found vessel: %s \n", vesselResponse.Vessel.Name)
 
 	if err != nil {
+		log.Printf("Can not find vessel")
 		return err
 	}
+	log.Printf("Found vessel: %s \n", vesselResponse.Vessel.Name)
+
 	req.VesselId = vesselResponse.Vessel.Id
 
 	err = s.repo.Create(req)

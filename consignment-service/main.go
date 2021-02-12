@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"log"
 	"os"
 
@@ -62,15 +61,19 @@ func main() {
 // an error is returned.
 func AuthWrapper(fn server.HandlerFunc) server.HandlerFunc {
 	return func(ctx context.Context, req server.Request, resp interface{}) error {
+		if os.Getenv("DISABLE_AUTH") == "true" {
+			return fn(ctx, req, resp)
+		}
 		meta, ok := metadata.FromContext(ctx)
 		if !ok {
-			return errors.New("no auth meta-data found in request")
+			log.Println("Missing with token: ")
+			// return errors.New("no auth meta-data found in request")
 		}
 		// Note this is now uppercase (not entirely sure why this is...)
 		token := meta["Token"]
 		log.Println("Authenticating with token: ", token)
 		// Auth here
-		authClient := userService.NewUserService("go.micro.srv.user", client.DefaultClient)
+		authClient := userService.NewUserService("UserService", client.DefaultClient)
 		_, err := authClient.ValidateToken(context.Background(), &userService.Token{
 			Token: token,
 		})
